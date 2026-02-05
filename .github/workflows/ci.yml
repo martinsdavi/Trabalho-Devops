@@ -43,7 +43,7 @@ jobs:
 
       - name: Procurar termos proibidos
         run: |
-          if grep -R -i "TODO\|FIXME\|senha\|password" .; then
+          if grep -R -i "TODO\|FIXME\|senha\|password" . --exclude-dir=.git; then
             echo "ERRO: Termos proibidos encontrados!"
             exit 1
           fi
