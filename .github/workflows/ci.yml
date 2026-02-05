@@ -55,3 +55,16 @@ jobs:
       - name: Validar links e imagens
         run: |
           blc index.html --recursive --filter-level=3
+
+      - name: Notificar sucesso na validação
+        if: success()
+        run: |
+          echo "✅ Todas as validações passaram com sucesso!"
+          echo "Node.js version: ${{ matrix.node-version }}"
+
+      - name: Notificar falha na validação
+        if: failure()
+        run: |
+          echo "❌ A validação falhou!"
+          echo "Por favor, corrija os erros acima antes de fazer o merge."
+          exit 1
