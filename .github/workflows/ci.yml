@@ -41,6 +41,13 @@ jobs:
             exit 1
           fi
 
+      - name: Verificar links quebrados
+        run: |
+          blc index.html --recursive --filter-level=3
+
+    
+   
+
       - name: Procurar termos proibidos
         run: |
           if grep -R -i "TODO\|FIXME\|senha\|password" . --exclude-dir=.git --exclude-dir=.github; then
@@ -51,3 +58,5 @@ jobs:
       - name: Validar links e imagens
         run: |
           blc index.html --recursive --filter-level=3
+
+       
