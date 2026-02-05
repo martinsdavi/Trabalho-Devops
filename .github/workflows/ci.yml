@@ -1,0 +1,53 @@
+name: CI - Validação do Portfólio
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Verificar index.html na raiz
+        run: |
+          if [ ! -f index.html ]; then
+            echo "ERRO: index.html não encontrado na raiz!"
+            exit 1
+          fi
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Instalar ferramentas
+        run: npm install -g htmlhint broken-link-checker
+
+      - name: Linter HTML
+        run: htmlhint index.html
+
+      - name: Bloquear arquivos maiores que 500KB
+        run: |
+          if find . -type f -size +500k | grep .; then
+            echo "ERRO: Arquivo maior que 500KB encontrado!"
+            exit 1
+          fi
+
+      - name: Procurar termos proibidos
+        run: |
+          if grep -R -i "TODO\|FIXME\|senha\|password" .; then
+            echo "ERRO: Termos proibidos encontrados!"
+            exit 1
+          fi
+
+      - name: Validar links e imagens
+        run: |
+          blc index.html --recursive --filter-level=3
