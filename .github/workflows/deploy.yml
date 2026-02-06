@@ -1,0 +1,49 @@
+name: CD - Deploy do Portfólio
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload dos artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Notificar sucesso
+        if: success()
+        run: |
+          echo "✅ Deploy realizado com sucesso!"
+          echo "Site publicado em: ${{ steps.deployment.outputs.page_url }}"
+
+      - name: Notificar falha
+        if: failure()
+        run: |
+          echo "❌ Erro ao fazer deploy!"
+          exit 1
